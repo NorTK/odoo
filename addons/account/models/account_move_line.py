@@ -934,7 +934,7 @@ class AccountMoveLine(models.Model):
     @api.depends('product_id', 'product_uom_id')
     def _compute_tax_ids(self):
         for line in self:
-            if line.display_type in ('line_section', 'line_subsection', 'line_note', 'payment_term') or line.is_imported:
+            if line.display_type in ('line_section', 'line_subsection', 'line_note', 'payment_term', 'cogs') or line.is_imported:
                 continue
             # /!\ Don't remove existing taxes if there is no explicit taxes set on the account.
             account_taxes = line.account_id.sudo().tax_ids
@@ -1550,7 +1550,7 @@ class AccountMoveLine(models.Model):
             if common_tags:
                 raise ValidationError(_("Taxes exigible on payment and on invoice cannot be mixed on the same journal item if they share some tag."))
 
-    @api.constrains('matching_number', 'matched_debit_ids', 'matched_credit_ids')
+    @api.constrains('matching_number', 'matched_debit_ids', 'matched_credit_ids', 'full_reconcile_id')
     def _constrains_matching_number(self):
         for line in self:
             if line.matching_number:
